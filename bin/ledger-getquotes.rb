@@ -184,11 +184,11 @@ def get_quotes(assets, config, start_date, end_date)
 
   prices = []
 
-  by_type[:stock].each do |asset|
+  (by_type[:stock] || []).each do |asset|
     prices += get_stock_quote(asset, config.alphavantage_key)
   end
 
-  by_type[:bctmpf].each do |asset|
+  (by_type[:bctmpf] || []).each do |asset|
     prices += get_bctmpf_quote(asset)
   end
 
@@ -244,10 +244,10 @@ command :parse_pricedb do |c|
   c.syntax = 'ledger-getquotes parse_pricedb [options]'
   c.summary = 'Parse a pricedb file and print the entries'
   c.description = ''
-  c.option '--file STRING', String, 'pricedb file to parse'
+  c.option '--pricedb STRING', String, 'pricedb file to parse'
   c.action do |args, options|
-    pricedb = PriceDB.load(options.file)
-    pp pricedb.flatten
+    pricedb = PriceDB.load(options.pricedb)
+    pp pricedb
   end
 end
 
