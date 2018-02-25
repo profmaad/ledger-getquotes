@@ -5,9 +5,9 @@ require 'commander/import'
 require 'httparty'
 require 'pp'
 
-program :name, 'ib_flex2ledger'
+program :name, 'ledger-getquotes'
 program :version, '0.0.1'
-program :description, 'Parse Interactive Brokers Flex reports into ledger transactions'
+program :description, 'Retrieve stock and currency quotes and maintain them in a ledger pricedb'
 
 class PriceDBEntry
   attr_reader :date, :asset, :base_currency, :price
