@@ -1,0 +1,23 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    commander (4.4.3)
+      highline (~> 1.7.2)
+    highline (1.7.8)
+    httparty (0.15.6)
+      multi_xml (>= 0.5.2)
+    mini_portile2 (2.2.0)
+    multi_xml (0.6.0)
+    nokogiri (1.8.0)
+      mini_portile2 (~> 2.2.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  commander
+  httparty
+  nokogiri
+
+BUNDLED WITH
+   1.12.1
