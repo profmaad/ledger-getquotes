@@ -69,11 +69,13 @@ class Asset
   attr_reader :type
   attr_reader :asset
   attr_reader :ledger_asset
+  attr_reader :currency
 
-  def initialize(type, asset, ledger_asset)
+  def initialize(type, asset, ledger_asset, currency)
     @type = type
     @asset = asset
     @ledger_asset = ledger_asset
+    @currency = currency
   end
 
   def self.of_s(s)
@@ -81,6 +83,7 @@ class Asset
     type = fields[0].to_sym
     asset = fields[1]
     ledger_asset = fields[2] || asset
+    currency = fields[3] || 'USD'
 
     case type
     when :stock
@@ -90,15 +93,11 @@ class Asset
       raise ArgumentError.new("unknown asset type #{type}")
     end
 
-    self.new(type, asset, ledger_asset)
+    self.new(type, asset, ledger_asset, currency)
   end
 
   def to_s()
-    if @ledger_asset != @asset then
-      "#{@type}:#{@asset}:#{@ledger_asset}"
-    else
-      "#{@type}:#{@asset}"
-    end
+    "#{@type}:#{@asset}:#{@ledger_asset}:#{@currency}"
   end
 end
 
@@ -129,13 +128,16 @@ end
 
 def get_stock_quote(asset, api_key)
   ticker = asset.asset
-  response = HTTParty.get("https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=#{ticker}&outputsize=full&apikey=#{api_key}")
+  url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=#{ticker}&outputsize=compact&apikey=#{api_key}"
+  puts url
+  response = HTTParty.get(url)
+  puts response
   data = response.parsed_response
   if response.code != 200 then
     raise "Alpha Vantage API request failed: #{response.body}"
   else
     data["Time Series (Daily)"].map do |date, values|
-      PriceDBEntry.new(Date.parse(date), asset.ledger_asset, "USD", values["4. close"].to_f)
+      PriceDBEntry.new(Date.parse(date), asset.ledger_asset, asset.currency, values["4. close"].to_f)
     end
   end
 end
@@ -184,7 +186,8 @@ def get_quotes(assets, config, start_date, end_date)
 
   prices = []
 
-  (by_type[:stock] || []).each do |asset|
+  (by_type[:stock] || []).each_with_index do |asset, index|
+    sleep(70) if index > 0 and index % 5 == 0
     prices += get_stock_quote(asset, config.alphavantage_key)
   end
 
